@@ -1,10 +1,26 @@
 package com.npn.spring.learning.spring.small.reactive.web.model;
 
+/**
+ * Определяет входные данные для работы API
+ */
 public class InputData {
+    /**
+     * Выражение 1
+     */
     private String function1;
+    /**
+     * Выражение2
+     */
     private String function2;
+
+    /**
+     * Количество требюуемых итераций
+     */
     private int iterationCount;
 
+    /**
+     * Тип отчета, должен быть или "RAW" или "FORMATTED"
+     */
     private String reportType;
 
     public InputData() {

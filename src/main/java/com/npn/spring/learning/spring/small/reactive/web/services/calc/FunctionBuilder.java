@@ -15,6 +15,9 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Вычисляет и предоставляет расчеты из переданных в него javascript функций, расчеты ведутся по таймеру
+ */
 public class FunctionBuilder {
 
     private final String jsFunction1;
@@ -26,6 +29,12 @@ public class FunctionBuilder {
     private AtomicInteger function1Counter = new AtomicInteger();
     private AtomicInteger function2Counter = new AtomicInteger();
 
+    /**
+     * Создает имплементацию класса с расчетами javascript функций
+     *
+     * @param inputData входные данные
+     * @param interval интервал запуска итераций
+     */
     public FunctionBuilder(InputData inputData, long interval) {
         this.jsFunction1 = inputData.getFunction1();
         this.jsFunction2 = inputData.getFunction2();
@@ -36,6 +45,15 @@ public class FunctionBuilder {
         Assert.notNull(reportType,"Report type can't ne null");
     }
 
+    /**
+     * Создает имплементацию класса с расчетами javascript функций
+     *
+     * @param jsFunction1 функция 1 которая итерационно вычесляется
+     * @param jsFunction2 функция 2 которая итерационно вычесляется
+     * @param iteration количество итераций расчетов
+     * @param interval интревал запуска итераций
+     * @param reportType тип отчета
+     */
     public FunctionBuilder(String jsFunction1, String jsFunction2, int iteration, Long interval, ReportType reportType) {
         this.jsFunction1 = jsFunction1;
         this.jsFunction2 = jsFunction2;
@@ -47,7 +65,11 @@ public class FunctionBuilder {
         Assert.notNull(reportType,"Report type can't ne null");
     }
 
-
+    /**
+     * Получение результатов расчетов функции
+     *
+     * @return  Flux<String> с результатами расчета
+     */
     public Flux<String> getResult() {
         Flux<FunctionResult> result1 = Flux.range(0,iteration)
                 .delayElements(Duration.ofMillis(interval))
@@ -60,6 +82,14 @@ public class FunctionBuilder {
         return getFormatResult(result1,result2,reportType);
     }
 
+    /**
+     * Формирование отчета из результатов переданных функций
+     *
+     * @param result1 результаты расчета функции 1
+     * @param result2 результаты расчета функции 2
+     * @param reportType тип отчета
+     * @return Flux<String> или пустой Flux
+     */
     private Flux<String> getFormatResult(Flux<FunctionResult> result1,
                                         Flux<FunctionResult> result2,
                                         ReportType reportType){
@@ -73,7 +103,13 @@ public class FunctionBuilder {
         }
     }
 
-
+    /**
+     * Формирует фоформатированный отчет
+     *
+     * @param result1 результаты расчета функции 1
+     * @param result2 результаты расчета функции 2
+     * @return строковое представление результата
+     */
     private String getFormattedResult(final FunctionResult result1, final FunctionResult result2) {
         return String.format(reportType.getTemplate(),
                 result1.getCurrentIteration(),
@@ -85,6 +121,12 @@ public class FunctionBuilder {
                 function2Counter.get()-result2.getCurrentIteration()-1);
     }
 
+    /**
+     * Формирует простой отчет
+     *
+     * @param result результаты расчета функции
+     * @return строковое представление результата
+     */
     private String getRawResult(final FunctionResult result) {
         return String.format(reportType.getTemplate(),
                 result.getFunctionNumber(),
@@ -94,6 +136,17 @@ public class FunctionBuilder {
     }
 
 
+    /**
+     * Вычисляет результаты расчета переданного выражения. Переданное выражение должно иметь параметр count
+     * и не должно быть функцией в javascript
+     *
+     * @param functionNumber номер функции
+     * @param iteration номер итерации
+     * @param counter счетчик, в который записывается количество выполненных операций
+     * @param jsFunction выражение Javascript
+     * @return {@link FunctionResult}
+     * @throws IllegalStateException при ошибке
+     */
     private FunctionResult calculate(final int functionNumber, final int iteration, final AtomicInteger counter, final String jsFunction) {
         Date startTime = new Date();
         ScriptEngineManager manager = new ScriptEngineManager();
@@ -114,7 +167,9 @@ public class FunctionBuilder {
     }
 
 
-
+    /**
+     * Педоставляет хранилище для результатов выполнения функции
+     */
     private class FunctionResult {
         private final int functionNumber;
         private final int currentIteration;

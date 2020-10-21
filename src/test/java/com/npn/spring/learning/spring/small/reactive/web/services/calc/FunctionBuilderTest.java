@@ -18,7 +18,9 @@ class FunctionBuilderTest {
 
     List<String> rawRowCheckList;
 
-    List<String> formattedRowCheckList;
+    List<String> formattedRowPatternCheckList;
+
+
 
     @BeforeEach
     public void init(){
@@ -38,8 +40,12 @@ class FunctionBuilderTest {
                 .block();
         rawRowCheckList = expectedResult;
 
+        List<String> expectedFormattedResult = Flux
+                .range(0,10)
+                .map(x->".+Function 1 - Iteration - "+x+".+"+"Function 2 - Iteration - "+x+".+")
+                .collectList().block();
 
-
+        formattedRowPatternCheckList = expectedFormattedResult;
     }
 
 
@@ -58,7 +64,8 @@ class FunctionBuilderTest {
                 .consumeRecordedWith(x->{
                     Set<String> set = new HashSet<>(x);
                     assertEquals(20, set.size());
-                    assertThat(set).allMatch(s->listContainString(rawRowCheckList,s));
+                    assertThat(set)
+                            .allMatch(s->listContainString(rawRowCheckList,s));
                 })
                 .verifyComplete();
     }
@@ -68,24 +75,46 @@ class FunctionBuilderTest {
      * @throws InterruptedException
      */
     @Test
-    public void functionFormattedReportBuilderTest() throws InterruptedException {
+    public void functionFormattedReportBuilderTest() {
         FunctionBuilder builder = new FunctionBuilder(createFormattedReport(),20L);
-        builder.getResult().subscribe(System.out::println);
-        Thread.sleep(15000);
+        Flux<String> result = builder.getResult();
 
-        //TODO
+        StepVerifier.create(result)
+                .recordWith(ArrayList::new)
+                .expectNextCount(10)
+                .consumeRecordedWith(x->{
+                    Set<String> set = new HashSet<>(x);
+                    assertEquals(10,x.size());
+                    assertThat(set.stream()
+                            .allMatch(s->stringMatchesRegexInList(formattedRowPatternCheckList,s)));
+                })
+                .verifyComplete();
+
     }
 
     /**
-     * Проверяет, содержит ли переданная запись хотя-бы одно из значений,
-     * @param list
-     * @param value
-     * @return
+     * Проверяет, содержит ли проверяемая строка хотя-бы в одном из значений коллекции
+     * @param list коллекция значений
+     * @param checkedString проверяемая строка
+     * @return true если содержит, иначе false
      */
-    private boolean listContainString(Collection<String> list, String value) {
+    private boolean listContainString(Collection<String> list, String checkedString) {
         return list
                 .stream()
-                .anyMatch(value::contains);
+                .anyMatch(checkedString::contains);
+    }
+
+    /**
+     * Проверяет подходит ла проверяемая строка под одно из регулярных выражений в коллекии
+     *
+     * @param regexString коллекция проверяемфх выражений
+     * @param checkedString проверяемя строка
+     * @return true если строка подходит, иначе false
+     */
+    private boolean stringMatchesRegexInList(Collection<String> regexString, String checkedString) {
+        return regexString
+                .stream()
+                .anyMatch(checkedString::matches);
     }
 
 
