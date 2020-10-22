@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Вычисляет и предоставляет расчеты из переданных в него javascript функций, расчеты ведутся по таймеру
  */
-public class FunctionBuilder {
+public class FunctionCalcService {
 
     private final String jsFunction1;
     private final String jsFunction2;
@@ -26,8 +26,8 @@ public class FunctionBuilder {
     private final ReportType reportType;
 
     private long interval;
-    private AtomicInteger function1Counter = new AtomicInteger();
-    private AtomicInteger function2Counter = new AtomicInteger();
+    private final AtomicInteger function1Counter = new AtomicInteger();
+    private final AtomicInteger function2Counter = new AtomicInteger();
 
     /**
      * Создает имплементацию класса с расчетами javascript функций
@@ -35,7 +35,7 @@ public class FunctionBuilder {
      * @param inputData входные данные
      * @param interval интервал запуска итераций
      */
-    public FunctionBuilder(InputData inputData, long interval) {
+    public FunctionCalcService(InputData inputData, long interval) {
         this.jsFunction1 = inputData.getFunction1();
         this.jsFunction2 = inputData.getFunction2();
         this.iteration = inputData.getIterationCount();
@@ -54,7 +54,7 @@ public class FunctionBuilder {
      * @param interval интревал запуска итераций
      * @param reportType тип отчета
      */
-    public FunctionBuilder(String jsFunction1, String jsFunction2, int iteration, Long interval, ReportType reportType) {
+    public FunctionCalcService(String jsFunction1, String jsFunction2, int iteration, Long interval, ReportType reportType) {
         this.jsFunction1 = jsFunction1;
         this.jsFunction2 = jsFunction2;
         this.iteration = iteration;
@@ -114,10 +114,10 @@ public class FunctionBuilder {
         return String.format(reportType.getTemplate(),
                 result1.getCurrentIteration(),
                 result1.getFunctionResult().toString(),
-                result1.getCaclulationTime(),
+                result1.getCalculationTime(),
                 function1Counter.get()-result1.getCurrentIteration()-1,
                 result2.getFunctionResult().toString(),
-                result2.getCaclulationTime(),
+                result2.getCalculationTime(),
                 function2Counter.get()-result2.getCurrentIteration()-1);
     }
 
@@ -132,7 +132,7 @@ public class FunctionBuilder {
                 result.getFunctionNumber(),
                 result.getCurrentIteration(),
                 result.getFunctionResult().toString(),
-                result.getCaclulationTime());
+                result.getCalculationTime());
     }
 
 
@@ -174,13 +174,13 @@ public class FunctionBuilder {
         private final int functionNumber;
         private final int currentIteration;
         private final Object functionResult;
-        private final long caclulationTime;
+        private final long calculationTime;
 
-        public FunctionResult(int functionNumber,int currentIteration, Object functionResult, long caclulationTime) {
+        public FunctionResult(int functionNumber,int currentIteration, Object functionResult, long calculationTime) {
             this.functionNumber = functionNumber;
             this.currentIteration = currentIteration;
             this.functionResult = functionResult;
-            this.caclulationTime = caclulationTime;
+            this.calculationTime = calculationTime;
         }
 
         public int getCurrentIteration() {
@@ -191,8 +191,8 @@ public class FunctionBuilder {
             return functionResult;
         }
 
-        public long getCaclulationTime() {
-            return caclulationTime;
+        public long getCalculationTime() {
+            return calculationTime;
         }
 
         public int getFunctionNumber() {
@@ -206,13 +206,13 @@ public class FunctionBuilder {
             FunctionResult that = (FunctionResult) o;
             return functionNumber == that.functionNumber &&
                     currentIteration == that.currentIteration &&
-                    caclulationTime == that.caclulationTime &&
+                    calculationTime == that.calculationTime &&
                     Objects.equals(functionResult, that.functionResult);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(functionNumber, currentIteration, functionResult, caclulationTime);
+            return Objects.hash(functionNumber, currentIteration, functionResult, calculationTime);
         }
     }
 

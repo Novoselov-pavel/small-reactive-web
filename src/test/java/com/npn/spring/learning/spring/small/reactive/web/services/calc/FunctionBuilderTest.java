@@ -51,11 +51,10 @@ class FunctionBuilderTest {
 
     /**
      * Тестирует вывод неформатированных строк.
-     * @throws InterruptedException
      */
     @Test
     public void functionRawReportBuilderTest() {
-        FunctionBuilder builder = new FunctionBuilder(createRawReport(),20L);
+        FunctionCalcService builder = new FunctionCalcService(createRawReport(),20L);
         Flux<String> result = builder.getResult();
 
         StepVerifier.create(result)
@@ -72,11 +71,10 @@ class FunctionBuilderTest {
 
     /**
      * Тестирует вывод форматированных строк.
-     * @throws InterruptedException
      */
     @Test
     public void functionFormattedReportBuilderTest() {
-        FunctionBuilder builder = new FunctionBuilder(createFormattedReport(),20L);
+        FunctionCalcService builder = new FunctionCalcService(createFormattedReport(),20L);
         Flux<String> result = builder.getResult();
 
         StepVerifier.create(result)

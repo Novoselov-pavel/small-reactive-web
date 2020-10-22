@@ -1,5 +1,7 @@
 package com.npn.spring.learning.spring.small.reactive.web.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * Определяет входные данные для работы API
  */
@@ -7,20 +9,25 @@ public class InputData {
     /**
      * Выражение 1
      */
+    @ApiModelProperty(example = "count + 'foo'", value = "First JS expression with parameter count")
     private String function1;
     /**
      * Выражение2
      */
+    @ApiModelProperty(example = "count + 'bar'", value = "Second JS expression with parameter count")
     private String function2;
 
     /**
      * Количество требюуемых итераций
      */
+    @ApiModelProperty(example = "10", value = "Number of iteration")
     private int iterationCount;
 
     /**
      * Тип отчета, должен быть или "RAW" или "FORMATTED"
      */
+
+    @ApiModelProperty(allowableValues = "RAW,FORMATTED", value = "Type of report")
     private String reportType;
 
     public InputData() {
